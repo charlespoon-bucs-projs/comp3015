@@ -11,7 +11,7 @@ public class DataChannelPool extends SelfHashPool<DataChannel> {
 
     public <T extends Closeable> String putNew(T io, Socket sck, Consumer<DataChannel<T>> after) {
         //noinspection SuspiciousMethodCalls
-        DataChannel<T> d = new DataChannel<T>(io, sck, this::remove);
+        DataChannel<T> d = new DataChannel<>(io, sck, this::remove);
         if (after != null) d.addAfter(after);
         String ret = super.putNew(d);
         d.start();

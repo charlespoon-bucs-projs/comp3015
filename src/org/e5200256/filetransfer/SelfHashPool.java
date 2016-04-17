@@ -1,9 +1,5 @@
 package org.e5200256.filetransfer;
 
-import org.e5200256.filetransfer.DataChannel;
-
-import java.io.Closeable;
-import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 abstract class SelfHashPool<T> {

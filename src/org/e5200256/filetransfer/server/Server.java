@@ -10,6 +10,7 @@ class Server {
         try {
             ss = new ServerSocket(33333);
 
+            //noinspection InfiniteLoopStatement
             while (true) {
                 new AcceptedServerConnection(ss.accept()).start();
             }

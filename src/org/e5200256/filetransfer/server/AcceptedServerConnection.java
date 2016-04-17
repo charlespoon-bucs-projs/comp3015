@@ -84,6 +84,7 @@ class AcceptedServerConnection extends Thread {
             boolean exiting = false;
             while (!exiting) {
                 String raw = br.readLine();
+                System.out.printf("<< (%s:%d) %s\r\n", s.getInetAddress().getHostAddress(), s.getPort(), raw);
                 CommandArguments ca = CommandArguments.CreateWithSpliting(raw);
 
                 if (ca.getCommand().equals("ls")) {
@@ -129,8 +130,17 @@ class AcceptedServerConnection extends Thread {
 
                             sb.append(String.format("\r\nTransferring: (%s@%s@%d)", f.getName(), localAddress.getHostAddress(), portNumber));
 
-                            serverSocketHouse.putNewSingleServerSocket(portNumber, remoteAddress, s -> dtPool.putNew(fs, s));
-                        } // TODO: dir
+                            System.out.printf("(file:%s) >> (%s:%d) *Start*\r\n", f.getName(), s.getInetAddress().getHostAddress(), s.getPort());
+                            serverSocketHouse.putNewSingleServerSocket(
+                                    portNumber,
+                                    remoteAddress, s -> dtPool.putNew(fs, s,
+                                            r -> System.out.printf("(file:%s) >> (%s:%d) *Done*\r\n",
+                                                    f.getName(),
+                                                    s.getInetAddress().getHostAddress(),
+                                                    s.getPort())
+                                    )
+                            );
+                        } // TO!DO: dir
                     }
 
                     String output = sb.toString();
@@ -138,12 +148,23 @@ class AcceptedServerConnection extends Thread {
                     packetAndSend(output);
 
 //                    new DataChannel<FileInputStream>(new FileInputStream())
+                } else if (ca.getCommand().equals("quit")) {
+                    packetAndSend("Bye.");
+                    exiting = true;
+                } else if (ca.getCommand().equals("help")) {
+                    String content =
+                            "ls              List contents in current directory\r\n" +
+                                    "cd [dir]        Change directory\r\n" +
+                                    "get {[file]+}   Download a file from remote.\r\n" +
+                                    "help            Show the list of the commands available and their descriptions.\r\n" +
+                                    "quit            Ends the session.";
+                    packetAndSend(content);
                 } else {
                     packetAndSend("Unrecognised command");
                 }
             }
         } catch (IOException e) {
-            System.out.println("IO error");
+            System.out.printf("(%s:%d) IO error: %s\r\n", s.getInetAddress().getHostAddress(), s.getPort(), e.getMessage());
         }
     }
 

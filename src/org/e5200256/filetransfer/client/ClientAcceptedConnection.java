@@ -39,6 +39,8 @@ class ClientAcceptedConnection {
     private DataInputStream din;
     private DataOutputStream dout;
 
+    boolean closing = false;
+
     ClientAcceptedConnection(Socket socket, Scanner scanner) throws IOException {
         s = socket;
         sc = scanner;
@@ -66,11 +68,9 @@ class ClientAcceptedConnection {
             } else {
                 System.out.println("logged in");
             }
-
-            boolean closing = false;
             while (!closing) {
                 System.out.print("> ");
-                bw.write(sc.nextLine() + "\r\n");
+                bw.write(predict(sc.nextLine()) + "\r\n");
                 bw.flush();
                 //noinspection ImplicitArrayToString
                 String rec = new String(receiveAndUnpack(din));
@@ -80,6 +80,12 @@ class ClientAcceptedConnection {
         } catch (IOException e) {
             System.out.println("read write error");
         }
+    }
+
+    private String predict(String content) {
+        if (content.equals("quit"))
+            closing = true;
+        return content;
     }
 
     private static byte[] receiveAndUnpack(DataInputStream in) throws IOException {

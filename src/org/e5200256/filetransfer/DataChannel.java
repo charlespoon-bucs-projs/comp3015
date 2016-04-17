@@ -45,7 +45,7 @@ public class DataChannel<T extends Closeable> extends Thread {
             sck.close();
             afters.stream().forEach(a -> a.accept(this));
         } catch (IOException e) {
-            System.out.println("IO error on transfering bytes on " + toString());
+            System.out.printf("(%s:%d) IO error on transfering bytes on %s\r\n", sck.getInetAddress(), sck.getPort(),  toString());
         }
     }
 
