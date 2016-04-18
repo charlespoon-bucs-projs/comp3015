@@ -163,6 +163,19 @@ class AcceptedServerConnection extends Thread {
                     packetAndSend("Unrecognised command");
                 }
             }
+
+            if (dtPool.size() > 0) {
+                dtPool.getAll().stream().forEach((dc) -> {
+                    try {
+                        if (interrupted())
+                            dc.interrupt();
+                        else
+                            dc.join();
+                    } catch (InterruptedException e) {
+                        System.out.println("Interrupted on waiting data channel \"%s\" to be completed. Will kill all remainings.");
+                    }
+                });
+            }
         } catch (IOException e) {
             System.out.printf("(%s:%d) IO error: %s\r\n", s.getInetAddress().getHostAddress(), s.getPort(), e.getMessage());
         }

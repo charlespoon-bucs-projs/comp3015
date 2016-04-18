@@ -77,6 +77,20 @@ class ClientAcceptedConnection {
                 System.out.println(rec);
                 parseAndDoBackground(rec);
             }
+
+            if (dcPool.size() > 0) {
+                dcPool.getAll().stream().forEach((dc) -> {
+                    try {
+                        //noinspection AccessStaticViaInstance
+                        if (Thread.currentThread().interrupted())
+                            dc.interrupt();
+                        else
+                            dc.join();
+                    } catch (InterruptedException e) {
+                        System.out.println("Interrupted on waiting data channel \"%s\" to be completed. Will kill all remainings.");
+                    }
+                });
+            }
         } catch (IOException e) {
             System.out.println("read write error");
         }
@@ -139,7 +153,7 @@ class ClientAcceptedConnection {
                     continue;
                 }
 
-                dcPool.putNew(fOut, s, r -> System.out.printf("File \"%s\" successfully transferred.\r\n> ", fileName));
+                dcPool.putNew(fOut, s, r -> System.out.printf("File \"%s\" %s transferred.\r\n> ", fileName, r.getException() == null ? "successfully" : "failed to be"));
             }
         }
     }

@@ -1,5 +1,6 @@
 package org.e5200256.filetransfer;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 abstract class SelfHashPool<T> {
@@ -23,5 +24,13 @@ abstract class SelfHashPool<T> {
 
     public T remove(T t) {
         return m.remove(t);
+    }
+
+    public int size() {
+        return m.size();
+    }
+
+    public Collection<T> getAll() {
+        return m.values();
     }
 }
